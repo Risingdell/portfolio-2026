@@ -1,0 +1,98 @@
+/* ===== Nav Rail ===== */
+.nav-rail {
+  width: 120px;
+  height: 100%;
+  background: var(--bg-nav);
+  border-left: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  padding: 2rem 0;
+  transition: background 0.4s ease, border-color 0.4s ease;
+  position: relative;
+}
+
+/* ===== Nav Items ===== */
+.nav-rail__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--text-secondary);
+  transition: color 0.3s ease, transform 0.3s ease;
+  position: relative;
+}
+
+.nav-rail__item:hover {
+  color: var(--text-accent);
+  transform: scale(1.1);
+}
+
+.nav-rail__item--active {
+  color: var(--text-accent);
+}
+
+.nav-rail__icon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.nav-rail__label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.45rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+}
+
+
+/* ===== Responsive — Tablet ===== */
+@media (max-width: 1024px) {
+  .nav-rail {
+    width: 64px;
+    gap: 2rem;
+  }
+
+  .nav-rail__icon {
+    font-size: 1rem;
+  }
+
+  .nav-rail__label {
+    font-size: 0.4rem;
+  }
+
+}
+
+/* ===== Responsive — Mobile: Bottom Bar ===== */
+@media (max-width: 600px) {
+  .nav-rail {
+    width: 100%;
+    height: 64px;
+    flex-direction: row;
+    justify-content: space-around;
+    gap: 0;
+    padding: 0 1rem;
+    border-left: none;
+    border-top: 1px solid var(--border-color);
+    backdrop-filter: blur(12px);
+  }
+
+
+  .nav-rail__item {
+    gap: 0.2rem;
+  }
+
+  .nav-rail__icon {
+    font-size: 1.1rem;
+  }
+
+  .nav-rail__label {
+    font-size: 0.4rem;
+  }
+}

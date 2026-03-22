@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap');
+
+/* ===== CSS Reset ===== */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ===== Theme Variables ===== */
+:root,
+[data-theme="dark"] {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #111111;
+  --bg-card: rgba(30, 30, 30, 0.8);
+  --bg-nav: rgba(20, 20, 20, 0.9);
+  --text-primary: #f0f0f0;
+  --text-secondary: #aaaaaa;
+  --text-accent: #00dcff;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --shadow-color: rgba(0, 220, 255, 0.05);
+  --water-color: rgba(0, 220, 255, 0.25);
+  --toggle-bg: rgba(255, 255, 255, 0.1);
+  --toggle-hover: rgba(255, 255, 255, 0.2);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.15);
+  --scrollbar-track: transparent;
+  --dot-ring-color: rgba(0, 220, 255, 0.4);
+  --portrait-shadow: 0 0 60px rgba(0, 220, 255, 0.15);
+}
+
+[data-theme="light"] {
+  --bg-primary: #f5f5f5;
+  --bg-secondary: #eaeaea;
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --bg-nav: rgba(240, 240, 240, 0.95);
+  --text-primary: #111111;
+  --text-secondary: #555555;
+  --text-accent: #0066cc;
+  --border-color: rgba(0, 0, 0, 0.08);
+  --shadow-color: rgba(0, 0, 0, 0.08);
+  --water-color: rgba(100, 180, 255, 0.3);
+  --toggle-bg: rgba(0, 0, 0, 0.08);
+  --toggle-hover: rgba(0, 0, 0, 0.15);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.15);
+  --scrollbar-track: transparent;
+  --dot-ring-color: rgba(0, 102, 204, 0.4);
+  --portrait-shadow: 0 0 60px rgba(0, 102, 204, 0.12);
+}
+
+/* ===== Global Styles ===== */
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.4s ease, color 0.4s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+/* ===== Font Classes ===== */
+.font-heading {
+  font-family: 'Orbitron', sans-serif;
+}
+
+.font-body {
+  font-family: 'Inter', sans-serif;
+}

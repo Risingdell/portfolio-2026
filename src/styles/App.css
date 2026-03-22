@@ -1,0 +1,182 @@
+/* ===== App Layout Shell ===== */
+.app {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.app__layout {
+  display: grid;
+  grid-template-columns: 1fr 100px;
+  height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== Content Area — melts on transition ===== */
+.app__content {
+  height: 100vh;
+  will-change: transform, opacity, filter;
+  overflow: hidden;
+}
+
+/* ===== Stage Layouts ===== */
+.stage {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- Hero: portrait centered, full width --- */
+.stage--hero {
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem 2rem 5rem;
+}
+
+.stage__portrait-full {
+  width: 100%;
+  max-width: 750px;
+  height: 72vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stage__hero-name {
+  text-align: center;
+}
+
+.stage__hero-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--text-primary);
+  margin-bottom: 0.3rem;
+  transition: color 0.4s ease;
+}
+
+.stage__hero-tagline {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-accent);
+  transition: color 0.4s ease;
+}
+
+/* --- About: InfoPanel full area --- */
+.stage--about {
+  padding: 2rem;
+}
+
+/* --- Full width stage (skills, etc.) --- */
+.stage--full {
+  padding: 2rem;
+}
+
+/* ===== Placeholder Sections ===== */
+.section-placeholder {
+  width: 100%;
+  max-width: 480px;
+  padding: 3rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  text-align: center;
+  box-shadow: 0 8px 32px var(--shadow-color);
+  transition: background 0.4s ease, border-color 0.4s ease;
+}
+
+.section-placeholder__title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.section-placeholder__text {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* ===== Right Column — Nav Rail ===== */
+.app__right {
+  display: flex;
+  align-items: stretch;
+}
+
+/* ===== Responsive — Tablet ===== */
+@media (max-width: 1024px) {
+  .app__layout {
+    grid-template-columns: 1fr 80px;
+  }
+
+  .stage--hero {
+    padding: 1.5rem 1.5rem 5rem;
+  }
+
+  .stage__portrait-full {
+    max-width: 400px;
+    height: 50vh;
+  }
+
+  .stage__hero-title {
+    font-size: 1.5rem;
+  }
+
+  .app__right {
+    grid-column: 2 / 3;
+    grid-row: 1 / -1;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+}
+
+/* ===== Responsive — Mobile ===== */
+@media (max-width: 600px) {
+  .app__layout {
+    grid-template-columns: 1fr;
+    padding-bottom: 70px;
+  }
+
+  .stage--hero {
+    padding: 1rem 1rem 6rem;
+    gap: 1rem;
+  }
+
+  .stage__portrait-full {
+    max-width: 280px;
+    height: 45vh;
+  }
+
+  .stage__hero-title {
+    font-size: 1.2rem;
+  }
+
+  .stage__hero-tagline {
+    font-size: 0.55rem;
+  }
+
+  .stage--about {
+    padding: 1rem;
+  }
+
+  .app__right {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    z-index: 10;
+  }
+}

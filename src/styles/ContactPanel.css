@@ -1,0 +1,324 @@
+/* ===== Contact Panel ===== */
+.contact-panel {
+  width: 100%;
+  max-width: 580px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-panel__content {
+  padding: 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Label */
+.contact-panel__label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-accent);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+/* Title */
+.contact-panel__title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+  transition: color 0.4s ease;
+}
+
+/* Subtitle */
+.contact-panel__subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 400;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-bottom: 2.5rem;
+  transition: color 0.4s ease;
+}
+
+/* Section */
+.contact-panel__section {
+  margin-bottom: 2rem;
+}
+
+.contact-panel__section-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  transition: color 0.4s ease;
+}
+
+/* Cards container */
+.contact-panel__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Card */
+.contact-panel__card {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.1rem 1.4rem;
+  border-radius: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  text-decoration: none;
+  backdrop-filter: blur(12px);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.35s ease,
+              box-shadow 0.35s ease,
+              background 0.35s ease;
+  cursor: pointer;
+}
+
+.contact-panel__card:hover {
+  transform: translateY(-3px) translateX(4px);
+  border-color: var(--text-accent);
+  box-shadow: 0 8px 30px var(--shadow-color),
+              0 0 0 1px rgba(0, 220, 255, 0.08);
+}
+
+/* Icon */
+.contact-panel__card-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  flex-shrink: 0;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.contact-panel__card:hover .contact-panel__card-icon {
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.contact-panel__card-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* Info */
+.contact-panel__card-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.contact-panel__card-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.5rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  transition: color 0.4s ease;
+}
+
+.contact-panel__card-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  transition: color 0.4s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Arrow */
+.contact-panel__card-arrow {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(0, 220, 255, 0.06);
+  border: 1px solid rgba(0, 220, 255, 0.1);
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  transition: all 0.35s ease;
+}
+
+.contact-panel__card-arrow svg {
+  width: 16px;
+  height: 16px;
+}
+
+.contact-panel__card:hover .contact-panel__card-arrow {
+  color: var(--text-accent);
+  background: rgba(0, 220, 255, 0.12);
+  border-color: var(--text-accent);
+  transform: translate(3px, -3px);
+}
+
+/* Footer */
+.contact-panel__footer {
+  margin-top: 2.5rem;
+}
+
+.contact-panel__footer-line {
+  width: 40px;
+  height: 2px;
+  background: var(--text-accent);
+  opacity: 0.4;
+  margin-bottom: 1rem;
+  border-radius: 2px;
+}
+
+.contact-panel__footer-text {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.5rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  opacity: 0.5;
+  transition: color 0.4s ease;
+}
+
+/* ===== Decorative Rings ===== */
+.contact-panel__decor {
+  position: absolute;
+  right: -60px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 300px;
+  height: 300px;
+  pointer-events: none;
+}
+
+.contact-panel__ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid var(--text-accent);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: contact-ring-pulse 4s ease-in-out infinite;
+}
+
+.contact-panel__ring--1 {
+  width: 120px;
+  height: 120px;
+  opacity: 0.15;
+  animation-delay: 0s;
+}
+
+.contact-panel__ring--2 {
+  width: 200px;
+  height: 200px;
+  opacity: 0.08;
+  animation-delay: 1.3s;
+}
+
+.contact-panel__ring--3 {
+  width: 280px;
+  height: 280px;
+  opacity: 0.04;
+  animation-delay: 2.6s;
+}
+
+@keyframes contact-ring-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: var(--ring-opacity, 0.15); }
+  50% { transform: translate(-50%, -50%) scale(1.08); opacity: calc(var(--ring-opacity, 0.15) * 1.5); }
+}
+
+.contact-panel__ring--1 { --ring-opacity: 0.15; }
+.contact-panel__ring--2 { --ring-opacity: 0.08; }
+.contact-panel__ring--3 { --ring-opacity: 0.04; }
+
+/* ===== Responsive — Tablet ===== */
+@media (max-width: 1024px) {
+  .contact-panel {
+    max-width: 100%;
+  }
+
+  .contact-panel__content {
+    padding: 2rem;
+  }
+
+  .contact-panel__title {
+    font-size: 1.6rem;
+  }
+
+  .contact-panel__decor {
+    opacity: 0.5;
+    right: -80px;
+  }
+}
+
+/* ===== Responsive — Mobile ===== */
+@media (max-width: 600px) {
+  .contact-panel__content {
+    padding: 1.5rem;
+  }
+
+  .contact-panel__title {
+    font-size: 1.3rem;
+  }
+
+  .contact-panel__subtitle {
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .contact-panel__card {
+    padding: 0.9rem 1.1rem;
+    gap: 1rem;
+    border-radius: 14px;
+  }
+
+  .contact-panel__card-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+  }
+
+  .contact-panel__card-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .contact-panel__card-value {
+    font-size: 0.78rem;
+  }
+
+  .contact-panel__card-arrow {
+    width: 28px;
+    height: 28px;
+  }
+
+  .contact-panel__card-arrow svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .contact-panel__decor {
+    display: none;
+  }
+}
