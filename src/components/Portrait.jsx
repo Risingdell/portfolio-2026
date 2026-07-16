@@ -3,7 +3,8 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { useTheme } from '../context/ThemeContext';
-import profileImg from '../assets/profile.png';
+import { prefersReducedMotion } from '../utils/motion';
+import profileImg from '../assets/dhanush-nobg.png';
 import '../styles/Portrait.css';
 
 /* ===== Pixel Sampling — 3D Point Cloud Style ===== */
@@ -33,7 +34,7 @@ function sampleImagePixels(image) {
       const b = data[i + 2];
       const a = data[i + 3];
 
-      if (a < 25) continue;
+      if (a < 120) continue;
 
       const brightness = (r * 0.299 + g * 0.587 + b * 0.114) / 255;
 
@@ -48,7 +49,7 @@ function sampleImagePixels(image) {
       // Bright areas (forehead, nose tip, cheeks) push forward
       // Dark areas (eye sockets, under chin, hair) recede
       // This creates the 3D sculpted bust effect
-      const depthBase = brightness * 0.55;
+      const depthBase = 0.14 + brightness * 0.3;
       // Add subtle noise for organic feel
       const noise = (Math.random() - 0.5) * 0.03;
       const nz = depthBase + noise;
@@ -70,6 +71,7 @@ function PointCloud({ particles, isDark }) {
   const pointsRef = useRef();
   const groupRef = useRef();
   const { viewport, raycaster, camera } = useThree();
+  const reduceMotion = useMemo(() => prefersReducedMotion(), []);
 
   // Mouse tracking for scatter
   const mouse3D = useRef(new THREE.Vector3(9999, 9999, 0));
@@ -95,8 +97,11 @@ function PointCloud({ particles, isDark }) {
     return orig;
   }, [particles, scale, count]);
 
-  // Velocity buffer for scatter physics
-  const velocities = useMemo(() => new Float32Array(count * 3).fill(0), [count]);
+  // Velocity buffer for scatter physics — mutated every frame in useFrame, so a ref
+  // (not memo) is the correct container. `key={theme}` on PointCloud forces a full
+  // remount on theme change, so `count` never changes within a mounted instance —
+  // the initial value is safe to compute once and never needs re-syncing.
+  const velocitiesRef = useRef(new Float32Array(count * 3));
 
   // Build geometry + material
   const { geometry, material } = useMemo(() => {
@@ -111,7 +116,7 @@ function PointCloud({ particles, isDark }) {
       if (isDark) {
         // PCD style: uniform white/light cyan dots
         // Slightly vary intensity by brightness for subtle contrast
-        const intensity = 0.65 + p.brightness * 0.35;
+        const intensity = 0.72 + p.brightness * 0.28;
         colors[i * 3]     = intensity * 0.9;   // R — slightly less for cyan tint
         colors[i * 3 + 1] = intensity * 0.95;  // G
         colors[i * 3 + 2] = intensity;          // B — full
@@ -200,6 +205,7 @@ function PointCloud({ particles, isDark }) {
 
   // Attach pointer events to the canvas element
   useEffect(() => {
+    if (reduceMotion) return;
     const el = document.querySelector('.portrait__canvas canvas');
     if (!el) return;
     el.addEventListener('pointermove', onPointerMove);
@@ -208,24 +214,27 @@ function PointCloud({ particles, isDark }) {
       el.removeEventListener('pointermove', onPointerMove);
       el.removeEventListener('pointerleave', onPointerLeave);
     };
-  }, [onPointerMove, onPointerLeave]);
+  }, [onPointerMove, onPointerLeave, reduceMotion]);
 
   // Global mouse for rotation parallax
   useEffect(() => {
+    if (reduceMotion) return;
     const onMove = (e) => {
       mouseRotTarget.current.x = (e.clientX / window.innerWidth - 0.5) * 0.6;
       mouseRotTarget.current.y = -(e.clientY / window.innerHeight - 0.5) * 0.4;
     };
     window.addEventListener('mousemove', onMove);
     return () => window.removeEventListener('mousemove', onMove);
-  }, []);
+  }, [reduceMotion]);
 
   // Per-frame: scatter physics + rotation
   useFrame((state, delta) => {
+    if (reduceMotion) return; // static point cloud — no scatter, parallax, or float
     if (!pointsRef.current || !groupRef.current) return;
 
     const posAttr = pointsRef.current.geometry.attributes.position;
     const pos = posAttr.array;
+    const velocities = velocitiesRef.current;
     const dt = Math.min(delta, 0.04);
 
     const mx = mouse3D.current.x;
@@ -310,6 +319,10 @@ export default function Portrait() {
 
   useEffect(() => {
     if (!wrapperRef.current || !particles) return;
+    if (prefersReducedMotion()) {
+      gsap.set(wrapperRef.current, { opacity: 1, scale: 1 });
+      return;
+    }
     gsap.fromTo(
       wrapperRef.current,
       { opacity: 0, scale: 0.9 },
@@ -319,6 +332,13 @@ export default function Portrait() {
 
   return (
     <div className="portrait" ref={wrapperRef}>
+      {!particles && (
+        <div className="portrait__loading" role="status" aria-label="Loading portrait">
+          <span className="portrait__loading-dot" />
+          <span className="portrait__loading-dot" />
+          <span className="portrait__loading-dot" />
+        </div>
+      )}
       {particles && (
         <Canvas
           className="portrait__canvas"

@@ -1,9 +1,9 @@
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback, lazy, Suspense } from 'react';
 import gsap from 'gsap';
+import { prefersReducedMotion } from './utils/motion';
 import { ThemeProvider } from './context/ThemeContext';
 import { SectionProvider, useSection } from './context/SectionContext';
 import ThemeToggle from './components/ThemeToggle';
-import Portrait from './components/Portrait';
 import InfoPanel from './components/InfoPanel';
 import SkillsPanel from './components/SkillsPanel';
 import ProjectsPanel from './components/ProjectsPanel';
@@ -11,6 +11,23 @@ import ContactPanel from './components/ContactPanel';
 import NavRail from './components/NavRail';
 import ScrollArrow from './components/ScrollArrow';
 import './styles/App.css';
+import './styles/Portrait.css';
+
+// Code-split: three.js + @react-three/fiber (the bulk of the bundle) only
+// load once the hero actually needs them, not on initial page parse.
+const Portrait = lazy(() => import('./components/Portrait'));
+
+function PortraitFallback() {
+  return (
+    <div className="portrait">
+      <div className="portrait__loading" role="status" aria-label="Loading portrait">
+        <span className="portrait__loading-dot" />
+        <span className="portrait__loading-dot" />
+        <span className="portrait__loading-dot" />
+      </div>
+    </div>
+  );
+}
 
 /* ===== Stage layouts ===== */
 
@@ -19,7 +36,9 @@ function HeroStage() {
   return (
     <div className="stage stage--hero">
       <div className="stage__portrait-full">
-        <Portrait />
+        <Suspense fallback={<PortraitFallback />}>
+          <Portrait />
+        </Suspense>
       </div>
       <div className="stage__hero-name">
         <h1 className="stage__hero-title">Dhanush M</h1>
@@ -91,7 +110,17 @@ function AppLayout() {
     const direction = activeIndex > prevActiveRef.current ? 1 : -1;
     prevActiveRef.current = activeIndex;
 
+    const reduceMotion = prefersReducedMotion();
     const tl = gsap.timeline();
+
+    if (reduceMotion) {
+      // Simple crossfade — skip the transform/blur choreography for motion-sensitive users
+      tl.to(content, { opacity: 0, duration: 0.12, ease: 'none' });
+      tl.call(() => commitTransition());
+      tl.to(content, { opacity: 1, duration: 0.12, ease: 'none' });
+      tl.call(() => finishTransition());
+      return () => tl.kill();
+    }
 
     // Melt OUT
     tl.to(content, {

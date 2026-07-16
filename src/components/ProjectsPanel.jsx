@@ -72,6 +72,7 @@ export default function ProjectsPanel() {
   const targetScroll = useRef(0);
   const animFrame = useRef(null);
   const isAnimating = useRef(false);
+  const animateRef = useRef(null);
 
   // Lerp animation loop for smooth scrolling
   const animate = useCallback(() => {
@@ -90,14 +91,18 @@ export default function ProjectsPanel() {
 
     // Lerp — ease toward target (0.12 = smooth, higher = faster)
     track.scrollLeft = current + diff * 0.12;
-    animFrame.current = requestAnimationFrame(animate);
+    animFrame.current = requestAnimationFrame(() => animateRef.current());
   }, []);
+
+  useEffect(() => {
+    animateRef.current = animate;
+  }, [animate]);
 
   const startAnimation = useCallback(() => {
     if (isAnimating.current) return;
     isAnimating.current = true;
-    animFrame.current = requestAnimationFrame(animate);
-  }, [animate]);
+    animFrame.current = requestAnimationFrame(() => animateRef.current());
+  }, []);
 
   // Convert vertical wheel to horizontal scroll inside the track
   const handleWheel = useCallback((e) => {

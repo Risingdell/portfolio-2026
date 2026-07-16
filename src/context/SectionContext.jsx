@@ -82,6 +82,7 @@ export function SectionProvider({ children }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- hook is tightly coupled to SectionProvider; splitting into a separate file adds indirection with no benefit at this app's size
 export function useSection() {
   const ctx = useContext(SectionContext);
   if (!ctx) throw new Error('useSection must be used within SectionProvider');

@@ -2,7 +2,7 @@ import { useSection } from '../context/SectionContext';
 import '../styles/ScrollArrow.css';
 
 export default function ScrollArrow() {
-  const { activeIndex, displayStage, stages, goNext } = useSection();
+  const { displayStage, goNext } = useSection();
 
   // Only show on the hero (home) stage
   if (displayStage !== 'hero') return null;

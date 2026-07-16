@@ -85,3 +85,23 @@ body {
 .font-body {
   font-family: 'Inter', sans-serif;
 }
+
+/* ===== Focus States ===== */
+/* Keyboard-only focus ring, matching the accent color instead of the browser default */
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--text-accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ===== Reduced Motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
