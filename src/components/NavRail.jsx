@@ -1,4 +1,5 @@
 import { useSection } from '../context/SectionContext';
+import signatureMark from '../assets/signature-mark.png';
 import '../styles/NavRail.css';
 
 const navItems = [
@@ -13,6 +14,7 @@ export default function NavRail() {
 
   return (
     <nav className="nav-rail">
+      <img className="nav-rail__signature" src={signatureMark} alt="Dhanush M" />
       {navItems.map(item => (
         <a
           key={item.id}

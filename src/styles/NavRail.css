@@ -14,6 +14,29 @@
   position: relative;
 }
 
+/* ===== Signature Logo ===== */
+.nav-rail__signature {
+  position: absolute;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 84px;
+  height: auto;
+  opacity: 0.8;
+  /* Source art is white ink on transparent. brightness(0) flattens it to pure
+     black regardless of source tone, then invert(1) flips it back to white —
+     a reliable way to force one flat theme color without re-exporting assets. */
+  filter: brightness(0) invert(1);
+  transition: opacity 0.3s ease, filter 0.4s ease;
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+:root[data-theme='light'] .nav-rail__signature {
+  filter: brightness(0) invert(0);
+}
+
 /* ===== Nav Items ===== */
 .nav-rail__item {
   display: flex;
@@ -59,6 +82,10 @@
     gap: 2rem;
   }
 
+  .nav-rail__signature {
+    width: 48px;
+  }
+
   .nav-rail__icon {
     font-size: 1rem;
   }
@@ -71,6 +98,10 @@
 
 /* ===== Responsive — Mobile: Bottom Bar ===== */
 @media (max-width: 600px) {
+  .nav-rail__signature {
+    display: none;
+  }
+
   .nav-rail {
     width: 100%;
     height: 64px;
@@ -80,6 +111,7 @@
     padding: 0 1rem;
     border-left: none;
     border-top: 1px solid var(--border-color);
+    -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
   }
 

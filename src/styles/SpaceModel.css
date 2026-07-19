@@ -1,0 +1,17 @@
+/* ===== Space Model — layered behind the portrait ===== */
+.space-model {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.space-model__canvas {
+  width: 100% !important;
+  height: 100% !important;
+  background: transparent !important;
+  cursor: grab;
+}
+
+.space-model__canvas:active {
+  cursor: grabbing;
+}

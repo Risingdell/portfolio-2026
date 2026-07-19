@@ -10,10 +10,14 @@
 }
 
 .portrait__canvas {
-  width: 100% !important;
-  height: 100% !important;
-  background: transparent !important;
-  cursor: crosshair;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  cursor: grab;
+}
+
+.portrait__canvas:active {
+  cursor: grabbing;
 }
 
 /* ===== Loading state ===== */
