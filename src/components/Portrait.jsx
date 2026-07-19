@@ -1,11 +1,10 @@
-import { useRef, useEffect, useState, useMemo, useCallback, Suspense } from 'react';
-import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber';
+import { useRef, useEffect, useState, useMemo, useCallback } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { useTheme } from '../context/ThemeContext';
 import { prefersReducedMotion } from '../utils/motion';
 import profileImg from '../assets/dhanush-nobg.png';
-import SpaceModel from './SpaceModel';
 import '../styles/Portrait.css';
 
 /* ===== Pixel Sampling — 3D Point Cloud Style ===== */
@@ -301,56 +300,12 @@ function PointCloud({ particles, isDark }) {
   );
 }
 
-/* ===== Silhouette Occluder =====
- * SpaceModel renders behind the portrait, but the portrait's point cloud is
- * sparse — without this, the geode shows through the gaps *within* the
- * person's own silhouette (poking through the face/torso) rather than
- * staying strictly behind it as a distinct backdrop. This is an invisible
- * plane (colorWrite off) cut to the portrait photo's own alpha silhouette
- * that writes depth only, so anything behind it is occluded exactly where
- * the person is, and fully visible everywhere else. */
-function SilhouetteOccluder() {
-  const texture = useLoader(THREE.TextureLoader, profileImg);
-  const { viewport } = useThree();
-  const scale = Math.min(viewport.width * 0.7, 10);
-
-  return (
-    <mesh position={[0, 0, scale * 0.09]}>
-      <planeGeometry args={[scale, scale]} />
-      <meshBasicMaterial
-        map={texture}
-        alphaTest={0.5}
-        colorWrite={false}
-        depthWrite
-      />
-    </mesh>
-  );
-}
-
 /* ===== Main Portrait Component ===== */
 export default function Portrait() {
   const wrapperRef = useRef(null);
-  const canvasWrapperRef = useRef(null);
   const [particles, setParticles] = useState(null);
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-
-  // The page hijacks touch gestures to drive section navigation (see App.jsx).
-  // A drag-to-rotate gesture on the space model behind the portrait must not
-  // also flip sections underneath it.
-  useEffect(() => {
-    const stopIfInside = (e) => {
-      if (canvasWrapperRef.current?.contains(e.target)) {
-        e.stopPropagation();
-      }
-    };
-    window.addEventListener('touchstart', stopIfInside, { capture: true });
-    window.addEventListener('touchend', stopIfInside, { capture: true });
-    return () => {
-      window.removeEventListener('touchstart', stopIfInside, { capture: true });
-      window.removeEventListener('touchend', stopIfInside, { capture: true });
-    };
-  }, []);
 
   useEffect(() => {
     const img = new Image();
@@ -385,18 +340,12 @@ export default function Portrait() {
         </div>
       )}
       {particles && (
-        <div className="portrait__canvas" ref={canvasWrapperRef}>
+        <div className="portrait__canvas">
           <Canvas
             camera={{ position: [0, 0, 6], fov: 55 }}
             gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
             dpr={[1, 2]}
           >
-            <Suspense fallback={null}>
-              <SpaceModel />
-            </Suspense>
-            <Suspense fallback={null}>
-              <SilhouetteOccluder />
-            </Suspense>
             <PointCloud
               key={theme}
               particles={particles}
