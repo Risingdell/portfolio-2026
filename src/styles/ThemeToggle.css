@@ -1,9 +1,5 @@
 /* ===== Theme Toggle ===== */
 .theme-toggle {
-  position: fixed;
-  top: 1.25rem;
-  left: 1.25rem;
-  z-index: 20;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -38,5 +34,6 @@
 }
 
 .theme-toggle__label {
+  -webkit-user-select: none;
   user-select: none;
 }

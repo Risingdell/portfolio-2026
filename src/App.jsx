@@ -3,7 +3,7 @@ import gsap from 'gsap';
 import { prefersReducedMotion } from './utils/motion';
 import { ThemeProvider } from './context/ThemeContext';
 import { SectionProvider, useSection } from './context/SectionContext';
-import ThemeToggle from './components/ThemeToggle';
+import WindowFrame from './components/WindowFrame';
 import InfoPanel from './components/InfoPanel';
 import SkillsPanel from './components/SkillsPanel';
 import ProjectsPanel from './components/ProjectsPanel';
@@ -100,7 +100,8 @@ function AppLayout() {
   const touchStartY = useRef(0);
   const touchTarget = useRef(null);
 
-  // Melt transition
+  // Horizontal slide transition — forward navigation exits left / enters from
+  // the right (direction: 1); backward navigation reverses both legs.
   useEffect(() => {
     if (activeIndex === prevActiveRef.current) return;
 
@@ -114,7 +115,7 @@ function AppLayout() {
     const tl = gsap.timeline();
 
     if (reduceMotion) {
-      // Simple crossfade — skip the transform/blur choreography for motion-sensitive users
+      // Simple crossfade — skip the slide choreography for motion-sensitive users
       tl.to(content, { opacity: 0, duration: 0.12, ease: 'none' });
       tl.call(() => commitTransition());
       tl.to(content, { opacity: 1, duration: 0.12, ease: 'none' });
@@ -122,35 +123,24 @@ function AppLayout() {
       return () => tl.kill();
     }
 
-    // Melt OUT
+    // Slide OUT
     tl.to(content, {
-      opacity: 0,
-      y: direction * -120,
-      scale: 0.98,
-      skewY: direction * 2,
-      filter: 'blur(10px)',
-      duration: 0.35,
-      ease: 'power2.in',
+      xPercent: direction * -100,
+      duration: 0.45,
+      ease: 'power2.inOut',
     });
 
     // Swap content
     tl.call(() => commitTransition());
 
-    // Reset position
-    tl.set(content, {
-      y: direction * 80,
-      scale: 1,
-      skewY: 0,
-      filter: 'blur(0px)',
-    });
+    // Position incoming content off-screen on the entry side
+    tl.set(content, { xPercent: direction * 100 });
 
-    // Fade IN
+    // Slide IN
     tl.to(content, {
-      delay: 0.05,
-      opacity: 1,
-      y: 0,
-      duration: 0.4,
-      ease: 'power2.out',
+      xPercent: 0,
+      duration: 0.45,
+      ease: 'power2.inOut',
     });
 
     // Unlock
@@ -257,8 +247,6 @@ function AppLayout() {
 
   return (
     <div className="app">
-      <ThemeToggle />
-
       <div className="app__layout">
         <div className="app__content" ref={contentRef}>
           <StageComponent key={displayStage} />
@@ -276,9 +264,11 @@ function AppLayout() {
 function App() {
   return (
     <ThemeProvider>
-      <SectionProvider>
-        <AppLayout />
-      </SectionProvider>
+      <WindowFrame>
+        <SectionProvider>
+          <AppLayout />
+        </SectionProvider>
+      </WindowFrame>
     </ThemeProvider>
   );
 }

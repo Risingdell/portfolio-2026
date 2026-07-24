@@ -140,7 +140,7 @@
 /* ===== Responsive — Mobile ===== */
 @media (max-width: 600px) {
   .skills-panel {
-    max-height: calc(100vh - 100px);
+    max-height: calc(100vh - 140px);
   }
 
   .skills-panel__content {
