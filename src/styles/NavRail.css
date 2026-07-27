@@ -33,10 +33,6 @@
   user-select: none;
 }
 
-:root[data-theme='light'] .nav-rail__signature {
-  filter: brightness(0) invert(0);
-}
-
 /* ===== Nav Items ===== */
 .nav-rail__item {
   display: flex;

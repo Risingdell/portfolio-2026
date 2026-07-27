@@ -1,7 +1,7 @@
 /* ===== Info Panel ===== */
 .info-panel {
   width: 100%;
-  max-width: 720px;
+  max-width: 960px;
   max-height: 85vh;
   position: relative;
   overflow: hidden;
@@ -9,7 +9,7 @@
 }
 
 .info-panel__content {
-  padding: 3rem;
+  padding: 2rem 3rem;
   overflow-y: auto;
   flex: 1;
   position: relative;
@@ -75,79 +75,6 @@
   font-weight: 400;
   line-height: 1.7;
   color: var(--text-secondary);
-  transition: color 0.4s ease;
-}
-
-/* ===== Education card ===== */
-.info-panel__edu-card {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  padding: 1.1rem 1.4rem;
-  border-radius: 16px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-              border-color 0.35s ease,
-              box-shadow 0.35s ease,
-              background 0.35s ease;
-}
-
-.info-panel__edu-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--text-accent);
-  box-shadow: 0 8px 30px var(--shadow-color), 0 0 0 1px rgba(0, 220, 255, 0.08);
-}
-
-.info-panel__edu-icon {
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 14px;
-  flex-shrink: 0;
-  color: #fff;
-  background: linear-gradient(135deg, #00b8d9, #00dcff);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  transition: transform 0.35s ease, box-shadow 0.35s ease;
-}
-
-.info-panel__edu-card:hover .info-panel__edu-icon {
-  transform: scale(1.08);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-}
-
-.info-panel__edu-icon svg {
-  width: 22px;
-  height: 22px;
-}
-
-.info-panel__edu-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  min-width: 0;
-}
-
-.info-panel__edu-degree {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.88rem;
-  font-weight: 500;
-  color: var(--text-primary);
-  line-height: 1.5;
-  transition: color 0.4s ease;
-}
-
-.info-panel__edu-cgpa {
-  font-family: 'Orbitron', sans-serif;
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  color: var(--text-accent);
   transition: color 0.4s ease;
 }
 
@@ -258,23 +185,6 @@
   .info-panel__subtitle {
     font-size: 0.85rem;
     margin-bottom: 1.5rem;
-  }
-
-  .info-panel__edu-card {
-    padding: 0.9rem 1.1rem;
-    gap: 1rem;
-    border-radius: 14px;
-  }
-
-  .info-panel__edu-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
-  }
-
-  .info-panel__edu-icon svg {
-    width: 18px;
-    height: 18px;
   }
 
   .info-panel__decor {

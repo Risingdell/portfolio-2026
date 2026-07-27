@@ -7,6 +7,7 @@ const navItems = [
   { id: 'skills', label: 'Skills', icon: '◆' },
   { id: 'projects', label: 'Projects', icon: '▧' },
   { id: 'contact', label: 'Contact', icon: '✉' },
+  { id: 'playground', label: 'Lab', icon: '⬡' },
 ];
 
 export default function NavRail() {

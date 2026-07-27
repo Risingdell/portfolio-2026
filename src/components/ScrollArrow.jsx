@@ -9,8 +9,7 @@ export default function ScrollArrow() {
 
   return (
     <button className="scroll-arrow" onClick={goNext} aria-label="Scroll to next section">
-      <span className="scroll-arrow__text">Scroll</span>
-      <span className="scroll-arrow__icon">▾</span>
+      <span className="scroll-arrow__icon" aria-hidden="false">▾</span>
     </button>
   );
 }

@@ -2,7 +2,6 @@ import { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import gsap from 'gsap';
-import { useTheme } from '../context/ThemeContext';
 import { prefersReducedMotion } from '../utils/motion';
 import profileImg from '../assets/dhanush-nobg.png';
 import '../styles/Portrait.css';
@@ -67,7 +66,7 @@ function sampleImagePixels(image) {
 }
 
 /* ===== 3D Point Cloud with Hover Scatter ===== */
-function PointCloud({ particles, isDark }) {
+function PointCloud({ particles, isDark, baseY = -0.45 }) {
   const pointsRef = useRef();
   const groupRef = useRef();
   const { viewport, raycaster, camera } = useThree();
@@ -83,7 +82,9 @@ function PointCloud({ particles, isDark }) {
   const mouseRotCurrent = useRef({ x: 0, y: 0 });
 
   const count = particles.length;
-  const scale = Math.min(viewport.width * 0.7, 10);
+  // Keep a little breathing room around the source portrait so the hair and
+  // shoulders are not clipped by the hero frame at wide aspect ratios.
+  const scale = Math.min(viewport.width * 0.50, 7.2);
 
   // Original positions (rest state)
   const origPositions = useMemo(() => {
@@ -196,6 +197,10 @@ function PointCloud({ particles, isDark }) {
     if (raycaster.ray.intersectPlane(rayPlane, target)) {
       mouse3D.current.copy(target);
     }
+
+    // This also runs for one-finger pointer movement on touch devices.
+    mouseRotTarget.current.x = ((e.clientX - rect.left) / rect.width - 0.5) * 0.6;
+    mouseRotTarget.current.y = -((e.clientY - rect.top) / rect.height - 0.5) * 0.4;
   }, [raycaster, camera, rayPlane]);
 
   const onPointerLeave = useCallback(() => {
@@ -209,9 +214,15 @@ function PointCloud({ particles, isDark }) {
     const el = document.querySelector('.portrait__canvas canvas');
     if (!el) return;
     el.addEventListener('pointermove', onPointerMove);
+    el.addEventListener('pointerdown', onPointerMove);
+    el.addEventListener('pointerup', onPointerLeave);
+    el.addEventListener('pointercancel', onPointerLeave);
     el.addEventListener('pointerleave', onPointerLeave);
     return () => {
       el.removeEventListener('pointermove', onPointerMove);
+      el.removeEventListener('pointerdown', onPointerMove);
+      el.removeEventListener('pointerup', onPointerLeave);
+      el.removeEventListener('pointercancel', onPointerLeave);
       el.removeEventListener('pointerleave', onPointerLeave);
     };
   }, [onPointerMove, onPointerLeave, reduceMotion]);
@@ -288,9 +299,9 @@ function PointCloud({ particles, isDark }) {
     groupRef.current.rotation.y = rc.x;
     groupRef.current.rotation.x = rc.y;
 
-    // Gentle float
+    // Gentle float with baseline offset so the head sits higher in the frame
     const t = state.clock.elapsedTime;
-    groupRef.current.position.y = Math.sin(t * 0.35) * 0.03;
+    groupRef.current.position.y = baseY + Math.sin(t * 0.35) * 0.03;
   });
 
   return (
@@ -304,8 +315,7 @@ function PointCloud({ particles, isDark }) {
 export default function Portrait() {
   const wrapperRef = useRef(null);
   const [particles, setParticles] = useState(null);
-  const { theme } = useTheme();
-  const isDark = theme === 'dark';
+  const isDark = true;
 
   useEffect(() => {
     const img = new Image();
@@ -342,14 +352,15 @@ export default function Portrait() {
       {particles && (
         <div className="portrait__canvas">
           <Canvas
-            camera={{ position: [0, 0, 6], fov: 55 }}
+            camera={{ position: [0, 0.15, 7.8], fov: 50 }}
             gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
             dpr={[1, 2]}
           >
             <PointCloud
-              key={theme}
+              key="dark"
               particles={particles}
               isDark={isDark}
+              baseY={-0.45}
             />
           </Canvas>
         </div>

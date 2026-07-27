@@ -7,9 +7,8 @@
   box-sizing: border-box;
 }
 
-/* ===== Theme Variables ===== */
-:root,
-[data-theme="dark"] {
+/* ===== Dark-only design tokens ===== */
+:root {
   --bg-primary: #0a0a0a;
   --bg-secondary: #111111;
   --bg-card: rgba(30, 30, 30, 0.8);
@@ -20,31 +19,10 @@
   --border-color: rgba(255, 255, 255, 0.08);
   --shadow-color: rgba(0, 220, 255, 0.05);
   --water-color: rgba(0, 220, 255, 0.25);
-  --toggle-bg: rgba(255, 255, 255, 0.1);
-  --toggle-hover: rgba(255, 255, 255, 0.2);
   --scrollbar-thumb: rgba(255, 255, 255, 0.15);
   --scrollbar-track: transparent;
   --dot-ring-color: rgba(0, 220, 255, 0.4);
   --portrait-shadow: 0 0 60px rgba(0, 220, 255, 0.15);
-}
-
-[data-theme="light"] {
-  --bg-primary: #f5f5f5;
-  --bg-secondary: #eaeaea;
-  --bg-card: rgba(255, 255, 255, 0.85);
-  --bg-nav: rgba(240, 240, 240, 0.95);
-  --text-primary: #111111;
-  --text-secondary: #555555;
-  --text-accent: #0066cc;
-  --border-color: rgba(0, 0, 0, 0.08);
-  --shadow-color: rgba(0, 0, 0, 0.08);
-  --water-color: rgba(100, 180, 255, 0.3);
-  --toggle-bg: rgba(0, 0, 0, 0.08);
-  --toggle-hover: rgba(0, 0, 0, 0.15);
-  --scrollbar-thumb: rgba(0, 0, 0, 0.15);
-  --scrollbar-track: transparent;
-  --dot-ring-color: rgba(0, 102, 204, 0.4);
-  --portrait-shadow: 0 0 60px rgba(0, 102, 204, 0.12);
 }
 
 /* ===== Global Styles ===== */

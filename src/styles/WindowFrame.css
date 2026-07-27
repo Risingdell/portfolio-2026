@@ -9,6 +9,14 @@
   transition: border-color 0.4s ease;
 }
 
+.window-frame--minimized {
+  height: 48px;
+}
+
+.window-frame--minimized .window-frame__body {
+  display: none;
+}
+
 /* ===== Titlebar ===== */
 .window-frame__titlebar {
   flex: none;
@@ -38,10 +46,6 @@
   flex: none;
   opacity: 0.85;
   filter: brightness(0) invert(1);
-}
-
-:root[data-theme='light'] .window-frame__brand-mark {
-  filter: brightness(0) invert(0);
 }
 
 .window-frame__brand-label {
@@ -108,6 +112,10 @@
 
 /* ===== Responsive ===== */
 @media (max-width: 600px) {
+  .window-frame--minimized {
+    height: 40px;
+  }
+
   .window-frame__titlebar {
     height: 40px;
     padding: 0 0.75rem;

@@ -1,7 +1,6 @@
 import { useRef, useEffect, useCallback, lazy, Suspense } from 'react';
 import gsap from 'gsap';
 import { prefersReducedMotion } from './utils/motion';
-import { ThemeProvider } from './context/ThemeContext';
 import { SectionProvider, useSection } from './context/SectionContext';
 import WindowFrame from './components/WindowFrame';
 import InfoPanel from './components/InfoPanel';
@@ -16,6 +15,7 @@ import './styles/Portrait.css';
 // Code-split: three.js + @react-three/fiber (the bulk of the bundle) only
 // load once the hero actually needs them, not on initial page parse.
 const Portrait = lazy(() => import('./components/Portrait'));
+const Playground = lazy(() => import('./components/Playground'));
 
 function PortraitFallback() {
   return (
@@ -78,6 +78,13 @@ const stageComponents = {
   contact: () => (
     <div className="stage stage--full">
       <ContactPanel />
+    </div>
+  ),
+  playground: () => (
+    <div className="stage stage--full">
+      <Suspense fallback={null}>
+        <Playground />
+      </Suspense>
     </div>
   ),
 };
@@ -195,6 +202,11 @@ function AppLayout() {
     const delta = touchStartY.current - e.changedTouches[0].clientY;
     if (Math.abs(delta) < 50) return;
 
+    // The portrait and the playground's 3D viewport own one-finger drags for
+    // their own interactions. Do not turn those drags into a section change
+    // on touch devices.
+    if (touchTarget.current?.closest('.portrait__canvas, .playground-panel__stage')) return;
+
     // Check if touch started inside a scrollable panel
     const scrollable = touchTarget.current?.closest('.info-panel__content, .skills-panel__content');
     if (scrollable) {
@@ -263,13 +275,11 @@ function AppLayout() {
 
 function App() {
   return (
-    <ThemeProvider>
-      <WindowFrame>
-        <SectionProvider>
-          <AppLayout />
-        </SectionProvider>
-      </WindowFrame>
-    </ThemeProvider>
+    <WindowFrame>
+      <SectionProvider>
+        <AppLayout />
+      </SectionProvider>
+    </WindowFrame>
   );
 }
 

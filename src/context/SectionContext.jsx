@@ -3,7 +3,7 @@ import { createContext, useContext, useRef, useState, useCallback } from 'react'
 const SectionContext = createContext();
 
 // Internal stages — hero & about are both "home" in the nav
-const STAGES = ['hero', 'about', 'skills', 'projects', 'contact'];
+const STAGES = ['hero', 'about', 'skills', 'projects', 'contact', 'playground'];
 
 // Map internal stage to nav section
 const STAGE_TO_NAV = {
@@ -12,6 +12,7 @@ const STAGE_TO_NAV = {
   skills: 'skills',
   projects: 'projects',
   contact: 'contact',
+  playground: 'playground',
 };
 
 // Nav items and their first stage
@@ -20,6 +21,7 @@ const NAV_TO_STAGE = {
   skills: 2,
   projects: 3,
   contact: 4,
+  playground: 5,
 };
 
 export function SectionProvider({ children }) {

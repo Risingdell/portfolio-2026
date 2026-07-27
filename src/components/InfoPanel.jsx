@@ -1,5 +1,6 @@
 import { useRef, useEffect } from 'react';
 import gsap from 'gsap';
+import { prefersReducedMotion } from '../utils/motion';
 import '../styles/InfoPanel.css';
 
 const interests = [
@@ -12,28 +13,33 @@ const interests = [
 ];
 
 export default function InfoPanel() {
-  const panelRef = useRef(null);
+  const contentRef = useRef(null);
 
-  // Entrance animation
+  // Reveal the story in order: label, title, intro, then each content block.
   useEffect(() => {
-    if (!panelRef.current) return;
-    gsap.fromTo(
-      panelRef.current,
-      { x: 60, opacity: 0 },
-      { x: 0, opacity: 1, duration: 1, ease: 'power3.out', delay: 0.5 }
+    if (!contentRef.current || prefersReducedMotion()) return;
+    const revealItems = contentRef.current.querySelectorAll('[data-reveal]');
+    const timeline = gsap.timeline({ delay: 1 });
+
+    timeline.fromTo(
+      revealItems,
+      { x: 64, autoAlpha: 0 },
+      { x: 0, autoAlpha: 1, duration: 0.7, ease: 'power3.out', stagger: 0.42 }
     );
+
+    return () => timeline.kill();
   }, []);
 
   return (
-    <div className="info-panel" ref={panelRef}>
-      <div className="info-panel__content">
-        <span className="info-panel__label">ABOUT</span>
-        <h2 className="info-panel__title">About Me</h2>
-        <p className="info-panel__subtitle">
-          A quick look at my background, education, and what drives the way I build.
+    <div className="info-panel">
+      <div className="info-panel__content" ref={contentRef}>
+        <span className="info-panel__label" data-reveal>ABOUT</span>
+        <h2 className="info-panel__title" data-reveal>About Me</h2>
+        <p className="info-panel__subtitle" data-reveal>
+          A quick look at my background and what drives the way I build.
         </p>
 
-        <div className="info-panel__section">
+        <div className="info-panel__section" data-reveal>
           <h3 className="info-panel__section-title">Overview</h3>
           <p className="info-panel__text">
             A results-driven developer focused on building real-world, scalable
@@ -43,25 +49,7 @@ export default function InfoPanel() {
           </p>
         </div>
 
-        <div className="info-panel__section">
-          <h3 className="info-panel__section-title">Education</h3>
-          <div className="info-panel__edu-card">
-            <span className="info-panel__edu-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M22 10 12 5 2 10l10 5 10-5Z" />
-                <path d="M6 12v5c0 1.66 2.69 3 6 3s6-1.34 6-3v-5" />
-              </svg>
-            </span>
-            <div className="info-panel__edu-info">
-              <span className="info-panel__edu-degree">
-                Bachelor of Engineering in Artificial Intelligence &amp; Data Science
-              </span>
-              <span className="info-panel__edu-cgpa">CGPA: 8.24</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="info-panel__section">
+        <div className="info-panel__section" data-reveal>
           <h3 className="info-panel__section-title">Interests</h3>
           <div className="info-panel__tags">
             {interests.map(tag => (
@@ -76,7 +64,7 @@ export default function InfoPanel() {
           </div>
         </div>
 
-        <div className="info-panel__section">
+        <div className="info-panel__section" data-reveal>
           <h3 className="info-panel__section-title">Summary</h3>
           <p className="info-panel__text">
             I specialize in designing and building end-to-end systems that combine

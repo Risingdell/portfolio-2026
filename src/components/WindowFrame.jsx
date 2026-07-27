@@ -1,11 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
-import ThemeToggle from './ThemeToggle';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import signatureMark from '../assets/signature-mark.png';
 import '../styles/WindowFrame.css';
 
+const NotFoundPage = lazy(() => import('./NotFoundPage'));
+
 export default function WindowFrame({ children }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [pulse, setPulse] = useState(null);
+  const [isMinimized, setIsMinimized] = useState(false);
+  const [isClosed, setIsClosed] = useState(false);
 
   useEffect(() => {
     const onFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
@@ -25,26 +27,37 @@ export default function WindowFrame({ children }) {
 
   // Minimize/close have no real target on a webpage — a brief press animation
   // acknowledges the click without pretending to do something it can't.
-  const handleDecorativeClick = useCallback((id) => {
-    setPulse(id);
-    setTimeout(() => setPulse(null), 300);
+  const handleMinimize = useCallback(() => {
+    setIsMinimized(current => !current);
   }, []);
 
+  const handleClose = useCallback(() => {
+    setIsClosed(true);
+  }, []);
+
+  if (isClosed) {
+    return (
+      <Suspense fallback={<div className="window-frame" />}>
+        <NotFoundPage />
+      </Suspense>
+    );
+  }
+
   return (
-    <div className="window-frame">
+    <div className={`window-frame ${isMinimized ? 'window-frame--minimized' : ''}`}>
       <div className="window-frame__titlebar">
         <div className="window-frame__brand">
           <img className="window-frame__brand-mark" src={signatureMark} alt="Dhanush M" />
           <span className="window-frame__brand-label">Dhanush M</span>
         </div>
         <div className="window-frame__controls">
-          <ThemeToggle />
           <div className="window-frame__dots" role="group" aria-label="Window controls">
             <button
               type="button"
-              className={`window-frame__dot window-frame__dot--minimize ${pulse === 'minimize' ? 'window-frame__dot--pulse' : ''}`}
-              onClick={() => handleDecorativeClick('minimize')}
-              aria-label="Minimize (decorative)"
+              className="window-frame__dot window-frame__dot--minimize"
+              onClick={handleMinimize}
+              aria-label={isMinimized ? 'Restore portfolio' : 'Minimize portfolio'}
+              aria-pressed={isMinimized}
             >
               &minus;
             </button>
@@ -59,9 +72,9 @@ export default function WindowFrame({ children }) {
             </button>
             <button
               type="button"
-              className={`window-frame__dot window-frame__dot--close ${pulse === 'close' ? 'window-frame__dot--pulse' : ''}`}
-              onClick={() => handleDecorativeClick('close')}
-              aria-label="Close (decorative)"
+              className="window-frame__dot window-frame__dot--close"
+              onClick={handleClose}
+              aria-label="Close portfolio"
             >
               &times;
             </button>
