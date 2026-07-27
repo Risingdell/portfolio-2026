@@ -6,8 +6,41 @@ import '../styles/Playground.css';
 
 const ANIMATIONS = ['Idle', 'Run'];
 
+function Rock({ isJumping, onCrash, onPassed }) {
+  const rockRef = useRef();
+  const xRef = useRef(2.5);
+  const crashedRef = useRef(false);
+
+  useFrame((_, delta) => {
+    if (!rockRef.current) return;
+    xRef.current -= delta * 2.5;
+    rockRef.current.position.x = xRef.current;
+    rockRef.current.rotation.y += delta * 2.5;
+
+    if (!crashedRef.current && xRef.current < 0.3 && xRef.current > -0.3 && !isJumping) {
+      crashedRef.current = true;
+      onCrash();
+    }
+
+    if (xRef.current < -2.2) onPassed();
+  });
+
+  return (
+    <mesh ref={rockRef} position={[2.5, -1.0, 0]} castShadow>
+      <dodecahedronGeometry args={[0.22, 1]} />
+      <meshStandardMaterial
+        color="#6f7b86"
+        emissive="#101820"
+        emissiveIntensity={0.8}
+        roughness={0.85}
+        metalness={0.1}
+      />
+    </mesh>
+  );
+}
+
 /* ===== Rigged stickman — drag to rotate, buttons switch animation ===== */
-function StickmanModel({ currentAnim }) {
+function StickmanModel({ currentAnim, jumpTrigger, crashed, onJumpStart, onJumpComplete }) {
   // public/ assets are served verbatim at the site root — a plain path
   // string, not an import (unlike src/assets, which go through Vite's
   // asset pipeline and need to be imported to get a resolved URL).
@@ -17,6 +50,28 @@ function StickmanModel({ currentAnim }) {
   const mixerRef = useRef(null);
   const actionsRef = useRef({});
   const dragRef = useRef({ dragging: false, lastX: 0 });
+  const jumpRef = useRef(0);
+  const wasJumpingRef = useRef(false);
+  const crashTimeRef = useRef(0);
+
+  useEffect(() => {
+    if (jumpTrigger > 0 && !crashed) {
+      jumpRef.current = 1;
+      onJumpStart();
+    }
+  }, [jumpTrigger, crashed, onJumpStart]);
+
+  useEffect(() => {
+    if (crashed) {
+      crashTimeRef.current = 0;
+      Object.values(actionsRef.current).forEach((action) => action.stop());
+    } else {
+      groupRef.current?.rotation.set(0, 0, 0);
+      groupRef.current?.position.set(0, 0, 0);
+      const action = actionsRef.current[currentAnim];
+      action?.reset().fadeIn(0.3).play();
+    }
+  }, [crashed, currentAnim]);
 
   const scene = useMemo(() => {
     // The source GLB uses a dark textured material that disappears against the
@@ -43,6 +98,37 @@ function StickmanModel({ currentAnim }) {
     gltf.scene.position.set(0, -1.05, 0);
     return gltf.scene;
   }, [gltf]);
+
+  // Attach oversized red glove meshes to the animated hand bones so they
+  // follow every pose and animation of the rig.
+  useEffect(() => {
+    const gloveMaterial = new THREE.MeshStandardMaterial({
+      color: 0xe53935,
+      emissive: 0x5c0909,
+      emissiveIntensity: 0.9,
+      roughness: 0.45,
+      metalness: 0.05,
+    });
+    const gloves = [];
+
+    ['mixamorig:LeftHand_011', 'mixamorig:RightHand_015'].forEach((name) => {
+      const hand = scene.getObjectByName(name);
+      if (!hand) return;
+      const glove = new THREE.Mesh(new THREE.SphereGeometry(7, 16, 12), gloveMaterial);
+      glove.scale.set(1, 1.15, 0.85);
+      glove.position.set(0, 3.5, 0);
+      hand.add(glove);
+      gloves.push(glove);
+    });
+
+    return () => {
+      gloves.forEach((glove) => {
+        glove.parent?.remove(glove);
+        glove.geometry.dispose();
+      });
+      gloveMaterial.dispose();
+    };
+  }, [scene]);
 
   // Build the mixer + actions once per loaded model.
   useEffect(() => {
@@ -72,7 +158,41 @@ function StickmanModel({ currentAnim }) {
   }, [currentAnim]);
 
   useFrame((_, delta) => {
+    if (!groupRef.current) return;
+
+    if (crashed) {
+      crashTimeRef.current += delta;
+      groupRef.current.position.y = -Math.min(0.9, crashTimeRef.current * 1.5);
+      groupRef.current.rotation.z = Math.min(Math.PI / 2, crashTimeRef.current * 4.5);
+      return;
+    }
+
     mixerRef.current?.update(delta);
+
+    // Rhythmic boxing footwork while standing.
+    if (currentAnim === 'Idle' && jumpRef.current === 0) {
+      const now = performance.now();
+      const footwork = Math.sin(now * 0.004) * 0.08;
+      groupRef.current.position.x = footwork;
+      groupRef.current.position.y = Math.abs(Math.sin(now * 0.006)) * 0.22;
+      groupRef.current.rotation.z = footwork * 0.35;
+    } else if (jumpRef.current === 0) {
+      groupRef.current.position.x = 0;
+      groupRef.current.rotation.z = 0;
+    }
+
+    if (jumpRef.current > 0) {
+      wasJumpingRef.current = true;
+      // Stay airborne long enough for the moving rock to pass underneath.
+      jumpRef.current = Math.max(0, jumpRef.current - delta / 1.15);
+      groupRef.current.position.y = Math.sin(jumpRef.current * Math.PI) * 0.8;
+    } else {
+      if (currentAnim !== 'Idle') groupRef.current.position.y = 0;
+      if (wasJumpingRef.current) {
+        wasJumpingRef.current = false;
+        onJumpComplete?.();
+      }
+    }
   });
 
   const onPointerDown = useCallback((e) => {
@@ -107,9 +227,9 @@ function StickmanModel({ currentAnim }) {
       <primitive object={scene} />
       {/* Invisible hit-cylinder — the figure's own limbs are too thin/irregular
           to grab reliably, so drag input is captured across a generous area. */}
-      <mesh visible={false} position={[0, 0, 0]}>
+      <mesh position={[0, 0, 0]}>
         <cylinderGeometry args={[1.2, 1.2, 2.4, 12]} />
-        <meshBasicMaterial />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
     </group>
   );
@@ -117,6 +237,66 @@ function StickmanModel({ currentAnim }) {
 
 export default function Playground() {
   const [currentAnim, setCurrentAnim] = useState('Idle');
+  const [jumpTrigger, setJumpTrigger] = useState(0);
+  const [obstacleVisible, setObstacleVisible] = useState(false);
+  const [isJumping, setIsJumping] = useState(false);
+  const [crashed, setCrashed] = useState(false);
+  const lastTapRef = useRef(0);
+
+  const handleJumpComplete = useCallback(() => {
+    setIsJumping(false);
+    setObstacleVisible(false);
+  }, []);
+
+  const handleCrash = useCallback(() => {
+    setIsJumping(false);
+    setCrashed(true);
+  }, []);
+
+  const handleJumpStart = useCallback(() => {
+    setIsJumping(true);
+  }, []);
+
+  const triggerJump = useCallback(() => {
+    if (crashed) {
+      setCrashed(false);
+      setObstacleVisible(false);
+    }
+    setJumpTrigger((value) => value + 1);
+  }, [crashed]);
+
+  const handleStageTouchEnd = useCallback(() => {
+    const now = Date.now();
+    if (now - lastTapRef.current < 340) triggerJump();
+    lastTapRef.current = now;
+  }, [triggerJump]);
+
+  // Runner mode continuously schedules rocks at varied intervals.
+  useEffect(() => {
+    if (currentAnim !== 'Run' || crashed) return undefined;
+
+    let timeoutId;
+    const scheduleRock = () => {
+      timeoutId = setTimeout(() => {
+        setObstacleVisible(true);
+        scheduleRock();
+      }, 1800 + Math.random() * 2600);
+    };
+
+    scheduleRock();
+    return () => clearTimeout(timeoutId);
+  }, [currentAnim, crashed]);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key !== 'Enter') return;
+      event.preventDefault();
+      triggerJump();
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [triggerJump]);
 
   return (
     <div className="playground-panel">
@@ -127,7 +307,7 @@ export default function Playground() {
           Drag to rotate the model, and switch between animations below.
         </p>
 
-        <div className="playground-panel__stage">
+        <div className="playground-panel__stage" onTouchEnd={handleStageTouchEnd}>
           <Canvas
             camera={{ position: [0, 0.3, 4.5], fov: 45 }}
             // Keep this secondary viewer lightweight so it can coexist with
@@ -139,7 +319,20 @@ export default function Playground() {
             <directionalLight position={[3, 4, 5]} intensity={2.8} color="#d9fbff" />
             <directionalLight position={[-3, 2, -4]} intensity={1.2} color="#00dcff" />
             <pointLight position={[0, 1, 3]} intensity={8} distance={10} color="#00dcff" />
-            <StickmanModel currentAnim={currentAnim} />
+            {obstacleVisible && (
+              <Rock
+                isJumping={isJumping}
+                onCrash={handleCrash}
+                onPassed={() => setObstacleVisible(false)}
+              />
+            )}
+            <StickmanModel
+              currentAnim={currentAnim}
+              jumpTrigger={jumpTrigger}
+              crashed={crashed}
+              onJumpStart={handleJumpStart}
+              onJumpComplete={handleJumpComplete}
+            />
           </Canvas>
         </div>
 
@@ -150,7 +343,14 @@ export default function Playground() {
               type="button"
               className="playground-panel__btn"
               aria-pressed={currentAnim === name}
-              onClick={() => setCurrentAnim(name)}
+              onClick={() => {
+                setCurrentAnim(name);
+                if (name === 'Idle') {
+                  setCrashed(false);
+                  setIsJumping(false);
+                }
+                if (name !== 'Run') setObstacleVisible(false);
+              }}
             >
               {name}
             </button>
