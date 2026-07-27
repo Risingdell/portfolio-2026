@@ -19,21 +19,28 @@ function StickmanModel({ currentAnim }) {
   const dragRef = useRef({ dragging: false, lastX: 0 });
 
   const scene = useMemo(() => {
-    const box = new THREE.Box3().setFromObject(gltf.scene);
-    const size = new THREE.Vector3();
-    box.getSize(size);
-    const center = new THREE.Vector3();
-    box.getCenter(center);
+    // The source GLB uses a dark textured material that disappears against the
+    // playground surface. Use a bright, double-sided material for this viewer.
+    gltf.scene.traverse((child) => {
+      if (!child.isMesh) return;
+      child.material = new THREE.MeshStandardMaterial({
+        color: 0x58eaff,
+        emissive: 0x083d4b,
+        emissiveIntensity: 1.4,
+        metalness: 0.2,
+        roughness: 0.4,
+        side: THREE.DoubleSide,
+      });
+      child.frustumCulled = false;
+    });
 
-    const maxDim = Math.max(size.x, size.y, size.z) || 1;
-    const scale = 2.4 / maxDim;
-    gltf.scene.scale.setScalar(scale);
-    gltf.scene.position.set(
-      -center.x * scale,
-      -box.min.y * scale,
-      -center.z * scale
-    );
-
+    // The FBX-exported root already contains the model's orientation and a
+    // 100x scale. Cancel that source scale directly and place the rig in the
+    // camera view; this avoids mixing world-space bounds with local transforms.
+    // setScalar replaces (rather than multiplies) the source 100x scale.
+    // A unit-scale rig is therefore the correct visible size here.
+    gltf.scene.scale.setScalar(1.2);
+    gltf.scene.position.set(0, -1.05, 0);
     return gltf.scene;
   }, [gltf]);
 
@@ -91,7 +98,7 @@ function StickmanModel({ currentAnim }) {
   return (
     <group
       ref={groupRef}
-      position={[0, -1.1, 0]}
+      position={[0, 0, 0]}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
@@ -100,7 +107,7 @@ function StickmanModel({ currentAnim }) {
       <primitive object={scene} />
       {/* Invisible hit-cylinder — the figure's own limbs are too thin/irregular
           to grab reliably, so drag input is captured across a generous area. */}
-      <mesh visible={false} position={[0, 1, 0]}>
+      <mesh visible={false} position={[0, 0, 0]}>
         <cylinderGeometry args={[1.2, 1.2, 2.4, 12]} />
         <meshBasicMaterial />
       </mesh>
@@ -123,20 +130,15 @@ export default function Playground() {
         <div className="playground-panel__stage">
           <Canvas
             camera={{ position: [0, 0.3, 4.5], fov: 45 }}
-            gl={{ antialias: true, alpha: true }}
-            dpr={[1, 2]}
-            onCreated={({ gl }) => {
-              // Without calling preventDefault() here, a lost WebGL context
-              // is treated as permanent — the browser never fires
-              // 'webglcontextrestored' and the canvas stays blank forever.
-              gl.domElement.addEventListener('webglcontextlost', (e) => {
-                e.preventDefault();
-              });
-            }}
+            // Keep this secondary viewer lightweight so it can coexist with
+            // the hero point-cloud renderer during section transitions.
+            gl={{ antialias: false, alpha: true, powerPreference: 'low-power' }}
+            dpr={1}
           >
-            <ambientLight intensity={0.7} />
-            <directionalLight position={[3, 4, 5]} intensity={1.3} />
-            <directionalLight position={[-3, 2, -4]} intensity={0.4} color="#00dcff" />
+            <ambientLight intensity={1.8} />
+            <directionalLight position={[3, 4, 5]} intensity={2.8} color="#d9fbff" />
+            <directionalLight position={[-3, 2, -4]} intensity={1.2} color="#00dcff" />
+            <pointLight position={[0, 1, 3]} intensity={8} distance={10} color="#00dcff" />
             <StickmanModel currentAnim={currentAnim} />
           </Canvas>
         </div>

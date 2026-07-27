@@ -353,8 +353,8 @@ export default function Portrait() {
         <div className="portrait__canvas">
           <Canvas
             camera={{ position: [0, 0.15, 7.8], fov: 50 }}
-            gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
-            dpr={[1, 2]}
+            gl={{ antialias: false, alpha: true, powerPreference: 'low-power' }}
+            dpr={1}
           >
             <PointCloud
               key="dark"
