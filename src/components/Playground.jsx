@@ -40,6 +40,44 @@ function Rock({ isJumping, onCrash, onPassed }) {
 }
 
 /* ===== Rigged stickman — drag to rotate, buttons switch animation ===== */
+// A single cinematic projectile drops from directly above the character,
+// then hands the impact to the existing crash animation.
+function CinematicArrow({ start, onHit }) {
+  const arrowRef = useRef();
+  const progressRef = useRef(0);
+  const hitRef = useRef(false);
+  const startVector = useMemo(() => new THREE.Vector3(...start), [start]);
+  const origin = useMemo(() => new THREE.Vector3(0, 0, 0), []);
+
+  useFrame((_, delta) => {
+    if (!arrowRef.current) return;
+    progressRef.current = Math.min(1, progressRef.current + delta / 0.7);
+    const progress = progressRef.current;
+    const position = startVector.clone().lerp(origin, progress);
+    arrowRef.current.position.copy(position);
+    const direction = origin.clone().sub(position).normalize();
+    arrowRef.current.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
+
+    if (progress >= 1 && !hitRef.current) {
+      hitRef.current = true;
+      onHit();
+    }
+  });
+
+  return (
+    <group ref={arrowRef} position={startVector}>
+      <mesh castShadow>
+        <cylinderGeometry args={[0.022, 0.022, 0.7, 8]} />
+        <meshStandardMaterial color="#28d7ff" emissive="#007bba" emissiveIntensity={2.6} />
+      </mesh>
+      <mesh position={[0, 0.45, 0]} castShadow>
+        <coneGeometry args={[0.07, 0.18, 4]} />
+        <meshStandardMaterial color="#9cf2ff" emissive="#008dcc" emissiveIntensity={2.2} />
+      </mesh>
+    </group>
+  );
+}
+
 function StickmanModel({ currentAnim, jumpTrigger, crashed, onJumpStart, onJumpComplete }) {
   // public/ assets are served verbatim at the site root — a plain path
   // string, not an import (unlike src/assets, which go through Vite's
@@ -241,7 +279,10 @@ export default function Playground() {
   const [obstacleVisible, setObstacleVisible] = useState(false);
   const [isJumping, setIsJumping] = useState(false);
   const [crashed, setCrashed] = useState(false);
+  const [arrowVisible, setArrowVisible] = useState(false);
+  const [arrowStart, setArrowStart] = useState([0, 3.4, 0]);
   const lastTapRef = useRef(0);
+  const jumpCountRef = useRef(0);
 
   const handleJumpComplete = useCallback(() => {
     setIsJumping(false);
@@ -253,6 +294,13 @@ export default function Playground() {
     setCrashed(true);
   }, []);
 
+  const handleArrowHit = useCallback(() => {
+    setArrowVisible(false);
+    setIsJumping(false);
+    setObstacleVisible(false);
+    setCrashed(true);
+  }, []);
+
   const handleJumpStart = useCallback(() => {
     setIsJumping(true);
   }, []);
@@ -261,6 +309,13 @@ export default function Playground() {
     if (crashed) {
       setCrashed(false);
       setObstacleVisible(false);
+      jumpCountRef.current = 0;
+      setArrowVisible(false);
+    }
+    jumpCountRef.current = crashed ? 1 : jumpCountRef.current + 1;
+    if (jumpCountRef.current > 10) {
+      setArrowStart([0, 3.4, 0]);
+      setArrowVisible(true);
     }
     setJumpTrigger((value) => value + 1);
   }, [crashed]);
@@ -326,6 +381,7 @@ export default function Playground() {
                 onPassed={() => setObstacleVisible(false)}
               />
             )}
+            {arrowVisible && <CinematicArrow start={arrowStart} onHit={handleArrowHit} />}
             <StickmanModel
               currentAnim={currentAnim}
               jumpTrigger={jumpTrigger}
@@ -348,6 +404,8 @@ export default function Playground() {
                 if (name === 'Idle') {
                   setCrashed(false);
                   setIsJumping(false);
+                  jumpCountRef.current = 0;
+                  setArrowVisible(false);
                 }
                 if (name !== 'Run') setObstacleVisible(false);
               }}
