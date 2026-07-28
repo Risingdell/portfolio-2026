@@ -283,6 +283,7 @@ export default function Playground() {
   const [arrowStart, setArrowStart] = useState([0, 3.4, 0]);
   const lastTapRef = useRef(0);
   const jumpCountRef = useRef(0);
+  const stageRef = useRef(null);
 
   const handleJumpComplete = useCallback(() => {
     setIsJumping(false);
@@ -320,10 +321,25 @@ export default function Playground() {
     setJumpTrigger((value) => value + 1);
   }, [crashed]);
 
-  const handleStageTouchEnd = useCallback(() => {
+  const handleStagePointerUp = useCallback((event) => {
+    // Use pointer capture so taps on the R3F canvas/model are still observed
+    // even when a mesh stops propagation for drag-to-rotate.
+    if (event.pointerType !== 'touch') return;
     const now = Date.now();
     if (now - lastTapRef.current < 340) triggerJump();
     lastTapRef.current = now;
+  }, [triggerJump]);
+
+  useEffect(() => {
+    const handleOutsidePointerUp = (event) => {
+      if (event.pointerType !== 'touch' || stageRef.current?.contains(event.target)) return;
+      const now = Date.now();
+      if (now - lastTapRef.current < 340) triggerJump();
+      lastTapRef.current = now;
+    };
+
+    window.addEventListener('pointerup', handleOutsidePointerUp, true);
+    return () => window.removeEventListener('pointerup', handleOutsidePointerUp, true);
   }, [triggerJump]);
 
   // Runner mode continuously schedules rocks at varied intervals.
@@ -362,7 +378,11 @@ export default function Playground() {
           Drag to rotate the model, and switch between animations below.
         </p>
 
-        <div className="playground-panel__stage" onTouchEnd={handleStageTouchEnd}>
+        <div
+          ref={stageRef}
+          className="playground-panel__stage"
+          onPointerUpCapture={handleStagePointerUp}
+        >
           <Canvas
             camera={{ position: [0, 0.3, 4.5], fov: 45 }}
             // Keep this secondary viewer lightweight so it can coexist with
